@@ -159,7 +159,7 @@ def readKey():
     return msg,correctOut,dfaOutput
 
 def addZero(input):
-    while len(input) < 6 :
+    while len(input) < 4 :
          input = "0"+input
     return input
 
@@ -169,18 +169,21 @@ correctOutBin = correctOutBin[2:]
 correctOutBin  = permutation(correctOutBin,initial_perm,64)
 R16,L16 = slipt(correctOutBin)
 L16 = permutation(L16,expension,48)
-L = []
-L_ = []
 
 
 a=0
+#len(listOutput)
 for k in range(0,len(listOutput)):
+    L = []
+    L_ = []
     DFAoutHex = listOutput[k]
     DFAoutBin = bin(int(DFAoutHex,16))
     DFAoutBin = DFAoutBin[2:]
     DFAoutBin = permutation(DFAoutBin,initial_perm,64)
     R_16,L_16 = slipt(DFAoutBin)
     L_16 = permutation(L_16,expension,48)
+    R_16 = xor(R_16,R16)
+    R_16 = permutation(R_16,inv_per,32)
     # permet d'avoir la liste des blocs fauté
     listOfSelectedBlock = []
     for i in range(0,8):
@@ -189,38 +192,45 @@ for k in range(0,len(listOutput)):
             L_.append(L_16[i*6:i*6+6])
             listOfSelectedBlock.append(i)
     for m in range(0,len(listOfSelectedBlock)):
+        index = listOfSelectedBlock[m]
+        #Quand y a 2 bloc faux il en prend 1
+        R_16new = R_16[index*4:index*4+4]
         dfa = L_[m]
         correct = L[m]
-        lignedfa = bin2dec(int(dfa[0]+dfa[5]))
-        coldfa = bin2dec(int(dfa[1]+dfa[2]+dfa[3]+dfa[4]))
-        lignecorret = bin2dec(int(correct[0]+correct[5]))
-        colcorrect = bin2dec(int(correct[1]+correct[2]+correct[3]+correct[4]))
-        s_dfa = sbox[m][lignedfa][coldfa]
-        s_dfa = bin(s_dfa)
-        s_dfa = s_dfa[2:]
-        s_dfa = addZero(s_dfa)
-        print(s_dfa)
-        s_dfa = permutation(s_dfa,)
-        s_correct = sbox[i][lignecorret][colcorrect]
-        s_correct = bin(s_correct)
-        s_correct = s_correct[2:]
-        s_correct = addZero(s_correct)
         for j in range (0,63):
-            for i in range(0,8):
+            #dfa à le bloc fauté
+            # correct à le même bloc mais non fauté
+            dfa = xor(dfa,s_box[j])
+            correct = xor(correct,s_box[j])
+            lignedfa = bin2dec(int(dfa[0]+dfa[5]))
+            coldfa = bin2dec(int(dfa[1]+dfa[2]+dfa[3]+dfa[4]))
+            lignecorret = bin2dec(int(correct[0]+correct[5]))
+            colcorrect = bin2dec(int(correct[1]+correct[2]+correct[3]+correct[4]))
+
+            s_dfa = sbox[m][lignedfa][coldfa]
+            s_dfa = bin(s_dfa)
+            s_dfa = s_dfa[2:]
+            s_dfa = addZero(s_dfa)
+
+            s_correct = sbox[i][lignecorret][colcorrect]
+            s_correct = bin(s_correct)
+            s_correct = s_correct[2:]
+            s_correct = addZero(s_correct)
+
+            droit = xor(s_correct,s_dfa)
+            if xor(R_16new,droit) == "0000":
+                a = a+1
+                print(s_box[j])
+                #for i in range(0,8):
 
                 # R16 xor R'16 == (P(Si(L16))  xor K16 ) xor (P(Si(L'16))  xor K16 )  afficher K16
-                if xor(R16[i*6:i*6+6],R_16[i*6:i*6+6]) == xor(xor(L16[i*6:i*6+6],s_box[j]),xor(L_16[i*6:i*6+6],s_box[j])):
-                    a = a+1
+                #    if xor(R16[i*6:i*6+6],R_16[i*6:i*6+6]) == xor(xor(L16[i*6:i*6+6],s_box[j]),xor(L_16[i*6:i*6+6],s_box[j])):
+
+
 print(a)
 
 
 
 
-
-# for i in range(0,64):
-#     for j in range(0,64):
-#         for k in range(0,len(L)):
-#             if xor(L[k],s_box[i]) == xor(L_[k],s_box[j]):
-#                 # print (L[k]+ " "+ s_box[i])
-#                 # print(L_[k]+ " "+s_box[j])
-#                 print(xor(L[k],s_box[i]))
+# K16 : 48bit
+#On sait ou sont les 8bit manquant et faire brut force sur les 8 bit
