@@ -1,6 +1,6 @@
 from array import *
 
-initial_perm = [58, 50, 42, 34, 26, 18, 10, 2,
+initial_permutation = [58, 50, 42, 34, 26, 18, 10, 2,
                 60, 52, 44, 36, 28, 20, 12, 4,
                 62, 54, 46, 38, 30, 22, 14, 6,
                 64, 56, 48, 40, 32, 24, 16, 8,
@@ -9,7 +9,7 @@ initial_perm = [58, 50, 42, 34, 26, 18, 10, 2,
                 61, 53, 45, 37, 29, 21, 13, 5,
                 63, 55, 47, 39, 31, 23, 15, 7]
 
-iptable = [40 ,8,48,16,56,24,64,32,
+final_permutation = [40 ,8,48,16,56,24,64,32,
 39,7,47,15,55,23,63,31,
 38,6,46,14,54,22,62,30,
 37,5,45,13,53,21,61,29,
@@ -25,7 +25,7 @@ expension = [32, 1 , 2 , 3 , 4 , 5 , 4 , 5,
          22, 23, 24, 25, 24, 25, 26, 27,
          28, 29, 28, 29, 30, 31, 32, 1 ]
 
-s_box =['000000','000001','000010',
+brut_force_subKey =['000000','000001','000010',
 '000011','000100','000101','000110',
 '000111','001000','001001','001010',
 '001011','001100','001101','001110',
@@ -83,15 +83,6 @@ sbox =  [[[14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
             [7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8],
             [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11] ] ]
 
-initial_perm = [58, 50, 42, 34, 26, 18, 10, 2,
-                60, 52, 44, 36, 28, 20, 12, 4,
-                62, 54, 46, 38, 30, 22, 14, 6,
-                64, 56, 48, 40, 32, 24, 16, 8,
-                57, 49, 41, 33, 25, 17, 9, 1,
-                59, 51, 43, 35, 27, 19, 11, 3,
-                61, 53, 45, 37, 29, 21, 13, 5,
-                63, 55, 47, 39, 31, 23, 15, 7]
-
 per = [ 16,  7, 20, 21,
         29, 12, 28, 17,
          1, 15, 23, 26,
@@ -109,7 +100,7 @@ inv_per = [9,17,23,31,
             4,29,11,19,
             32,12,22,7,
             5,27,15,21]
-
+#inverse de PC2
 inv_PC_2 = [5,24,7,16,6,10,20,
           18,49,12,3,15,23,1,
           9,19,2,50,14,22,11,
@@ -119,7 +110,7 @@ inv_PC_2 = [5,24,7,16,6,10,20,
           55,37,34,43,29,36,38,
           45,33,26,42,56,30,40]
 
-
+#inverse de PC1
 inv_PC_1 = [8,16,24,56,52,44,36,57,
           7,15,23,55,51,43,35,58,
           6,14,22,54,50,42,34,59,
@@ -128,13 +119,6 @@ inv_PC_1 = [8,16,24,56,52,44,36,57,
           3,11,19,27,47,39,31,62,
           2,10,18,26,46,38,30,63,
           1,9,17,25,45,37,29,64]
-
-keyPosition= [18,59,42,3,57,25,41,36,
-              10,17,27,50,11,43,34,33,
-              52,1,2,9,44,35,26,49,30,5,
-              47,62,45,12,55,38,13,61,
-              31,37,6,29,46,4,23,28,53,
-              22,21,7,63,39]
 
 PC_1 = [57, 49, 41, 33, 25, 17, 9,
         1, 58, 50, 42, 34, 26, 18,
@@ -159,12 +143,15 @@ shift_table = [1, 1, 2, 2,
                 1, 2, 2, 2,
                 2, 2, 2, 1 ]
 
+#permet d'effectuer un permutation sur toChange
+#en utilisant la table p_table
 def permutation(toChange, p_table,n):
     output = ""
     for i in range(0,n):
         output = output+ toChange[p_table[i]-1]
     return output
 
+#découpe en deux un binaire de taille 64
 def slipt(binaryinput):
     return binaryinput[:32],binaryinput[32:]
 
@@ -177,32 +164,8 @@ def xor(a,b):
                 ans += "1"
     return ans
 
-def printTheArray(arr,n):
-    for i in range(n):
-        print(arr[i],end='')
-
-    print ()
-
-def generateBinaryString(n,arr,i):
-    if i ==n:
-        printTheArray(arr,n)
-        return arr
-    arr[i]=0
-    generateBinaryString(n,arr,i+1)
-
-    arr[i] = 1
-    generateBinaryString(n,arr,i+1)
-
-def bin2dec(binary):
-    decimal, i, n = 0, 0, 0
-    while(binary != 0):
-        dec = binary % 10
-        decimal = decimal + dec * pow(2, i)
-        binary = binary//10
-        i += 1
-    return decimal
-
-
+#effectue la lecture du fichier ayant les chiffrés fauté, le chiffré juste
+#et le message
 def readKey():
     f= open("key.txt","r")
     msg = f.readline()
@@ -219,6 +182,7 @@ def readKey():
     f.close()
     return msg,correctOut,dfaOutput
 
+#effectue la lecture et le stockage et 2⁸ possibilités
 def readPossibleKey():
     f = open("possible_2_8.txt","r")
     table = []
@@ -231,43 +195,31 @@ def readPossibleKey():
     f.close()
     return table
 
-
+#ajoute des 0 à gauche de l'entrée binaire pour avec un binaire de taille 4 bit
 def addZero(input):
     while len(input) < 4 :
          input = "0"+input
     return input
 
-def mediumBloc(bloc):
-    a = 0
-    resu =""
-    for j in range(0,6):
-        a=0
-
-        for i in range(0,len(bloc)):
-            a = a+int(bloc[i][j],2)
-        a = a/len(bloc)
-        if a > 0.5 :
-            resu += "1"
-        else :
-            resu += "0"
-    return resu
-
+#effectue un brut force pour trouver les 6 bit de la sous clé
 def findSubKey(bL,bR,L16,num):
     for i in range(0,64):
         compteur = 0
-        key = s_box[i]
+        key = brut_force_subKey[i]
         correct = xor(L16,key)
-        lignecorret = bin2dec(int(correct[0]+correct[5]))
-        colcorrect = bin2dec(int(correct[1]+correct[2]+correct[3]+correct[4]))
+        lignecorret = int(correct[0]+correct[5],2)
+        colcorrect = int(correct[1]+correct[2]+correct[3]+correct[4],2)
         s_correct = sbox[num][lignecorret][colcorrect]
         s_correct = bin(s_correct)
         s_correct = s_correct[2:]
         s_correct = addZero(s_correct)
+        #on vérifie les 6 bit possible si elle correspond à tout les
+        #les messages fauté ayant une faute dans le même bloc
         for j in range(0,len(bL)):
             dfa  = bL[j]
             dfa = xor(dfa,key)
-            lignedfa = bin2dec(int(dfa[0]+dfa[5]))
-            coldfa = bin2dec(int(dfa[1]+dfa[2]+dfa[3]+dfa[4]))
+            lignedfa = int(dfa[0]+dfa[5],2)
+            coldfa = int(dfa[1]+dfa[2]+dfa[3]+dfa[4],2)
             s_dfa = sbox[num][lignedfa][coldfa]
             s_dfa = bin(s_dfa)
             s_dfa = s_dfa[2:]
@@ -275,9 +227,12 @@ def findSubKey(bL,bR,L16,num):
             droite = xor(s_dfa,s_correct)
             if xor(bR[j],droite) == "0000":
                 compteur = compteur+1
+        #lorsque les 6 bit ont fonctionner pour tous les message fauté
+        #ayant une faute dans le même bloc on retourne les 6 bit de K
         if compteur == len(bL):
             return key
 
+#Permet de mettre les bon bit de parité à la clé K
 def parityBit(input):
     output =''
     tmp =''
@@ -297,14 +252,14 @@ def parityBit(input):
     return output
 
 
-
+# fonction F du DES 
 def f_function(R,K):
     R = permutation(R,expension,48)
     R= xor(K,R)
     out = ""
     for i in range(0,8):
-        ligne = bin2dec(int(R[i*6]+R[i*6+5]))
-        col = bin2dec(int(R[i*6+1]+R[i*6+2]+R[i*6+3]+R[i*6+4]))
+        ligne = int(R[i*6]+R[i*6+5],2)
+        col = int(R[i*6+1]+R[i*6+2]+R[i*6+3]+R[i*6+4],2)
         exit_sbox= sbox[i][ligne][col]
         exit_sbox = bin(exit_sbox)
         exit_sbox = exit_sbox[2:]
@@ -313,18 +268,29 @@ def f_function(R,K):
 
     return(permutation(out,per,32))
 
-#--------------------------------------
+####################################
+####################################
+#
 #         DEBUT DU PROGRAMME
+#
 ######################################
+####################################
 
-#Lecture du fichier d'entrée 
+
+#Lecture du fichier d'entrée
+#Attribution à msg le message d'entrée
+#correctOutHex le chiffré correct
+#listOutput contient la liste de tous les chiffrés fauté
 msg,correctOutHex,listOutput = readKey()
 correctOutBin = bin(int(correctOutHex,16))
 correctOutBin = correctOutBin[2:]
-correctOutBin  = permutation(correctOutBin,initial_perm,64)
+correctOutBin  = permutation(correctOutBin,initial_permutation,64)
 R16,L16 = slipt(correctOutBin)
 L16 = permutation(L16,expension,48)
 
+#Chaque bloc représente un bloc de l'information qu'on lui donne
+#on va socker dans les blocLX les bloc fauté se trouvant au découpage X
+#après expension
 blocL0 = []
 blocL1 = []
 blocL2 = []
@@ -334,6 +300,8 @@ blocL5 = []
 blocL6 = []
 blocL7 = []
 
+#on va stocker dans les blocRX la xor du chiffré juste R16 xor R'16 le tout après permutation
+#on stocker les 6 bit se trouvant à la même position que le bloc fauté L15 xor L'15
 blocR0 = []
 blocR1 = []
 blocR2 = []
@@ -350,7 +318,7 @@ for k in range(0,len(listOutput)):
     DFAoutHex = listOutput[k]
     DFAoutBin = bin(int(DFAoutHex,16))
     DFAoutBin = DFAoutBin[2:]
-    DFAoutBin = permutation(DFAoutBin,initial_perm,64)
+    DFAoutBin = permutation(DFAoutBin,initial_permutation,64)
 
     R_16,L_16 = slipt(DFAoutBin)
 
@@ -358,10 +326,10 @@ for k in range(0,len(listOutput)):
     R_16 = xor(R_16,R16)
     R_16 = permutation(R_16,inv_per,32)
 
-    # permet d'avoir la liste des blocs fauté
-    listOfSelectedBlock = []
     for i in range(0,8):
-        if xor(L16[i*6:i*6+6],L_16[i*6:i*6+6]) != s_box[0]:
+        if xor(L16[i*6:i*6+6],L_16[i*6:i*6+6]) != brut_force_subKey[0]:
+            #lorsqu'on trouve une faute dans un bloc on ajoute
+            #le bloc faute dans la liste des blocs
             if i == 0:
                 blocL0.append(L_16[i*6:i*6+6])
                 blocR0.append(R_16[i*4:i*4+4])
@@ -389,7 +357,8 @@ for k in range(0,len(listOutput)):
 # dans un bloc ont à tous les bloc fauté
 
 subKey = ""
-
+#findSubKey fait un brut force des 6 bit de la sous clé
+#pour chacun des blocs
 subKey +=findSubKey(blocL0,blocR0,L16[0:6],0)
 subKey +=findSubKey(blocL1,blocR1,L16[6:12],1)
 subKey +=findSubKey(blocL2,blocR2,L16[12:18],2)
@@ -399,95 +368,77 @@ subKey +=findSubKey(blocL5,blocR5,L16[30:36],5)
 subKey +=findSubKey(blocL6,blocR6,L16[36:42],6)
 subKey +=findSubKey(blocL7,blocR7,L16[42:48],7)
 
-#ici on a la sous clé
-print(subKey)
+#ici on a la sous clé qui est correct
+#print(subKey)
 
 
-###########################
-#test de la clé
-########################
-DFAoutHex = listOutput[4]
-DFAoutBin = bin(int(DFAoutHex,16))
-DFAoutBin = DFAoutBin[2:]
-DFAoutBin = permutation(DFAoutBin,initial_perm,64)
-R_16,L_16 = slipt(DFAoutBin)
-L_16 = permutation(L_16,expension,48)
-resu = xor(L_16,subKey)
-passageSbox = ""
-passageSboxCorrect = ""
-for i in range(0,8):
-    tmp = resu[i*6:i*6+6]
-    ligne = bin2dec(int(tmp[0]+tmp[5]))
-    col = bin2dec(int(tmp[1]+tmp[2]+tmp[3]+tmp[4]))
-    s_tmp = sbox[i][ligne][col]
-    s_tmp = bin(s_tmp)
-    s_tmp = s_tmp[2:]
-    s_tmp = addZero(s_tmp)
-    passageSbox += s_tmp
-passageSbox = permutation(passageSbox,per,32)
-resu = xor(L16,subKey)
-for i in range(0,8):
-    tmp = resu[i*6:i*6+6]
-    ligne = bin2dec(int(tmp[0]+tmp[5]))
-    col = bin2dec(int(tmp[1]+tmp[2]+tmp[3]+tmp[4]))
 
-    s_tmp = sbox[i][ligne][col]
-    s_tmp = bin(s_tmp)
-    s_tmp = s_tmp[2:]
-    s_tmp = addZero(s_tmp)
-    passageSboxCorrect += s_tmp
-
-passageSboxCorrect = permutation(passageSboxCorrect,per,32)
-
-droite = xor(passageSbox,passageSboxCorrect)
-
-resu = xor(R16,R_16)
 
 ######################
 #retrouver K à partir de K16
 #######################
 
-
-
+#contient 2⁸ valeurs possible que peuvent avoir 8 bit manquant
 allKeyPossiblility = []
 allKeyPossiblility = readPossibleKey()
 
+#on récupère la sortie non fauté donné
 correctOutBin = bin(int(correctOutHex,16))
-
 correctOutBin = correctOutBin[2:]
 
+#on récupère le message d'entrée
 msg = bin(int(msg,16))
 msg = msg[2:]
+
+#on le découpe en deux
 L,R = slipt(msg)
 
+#on test pour les 2⁸ possibilités de 8 bit manquant
 for k in range(0,len(allKeyPossiblility)):
+    #on ajoute les 8 bit manquant à la fin de notre sous clé correct
     toTest = subKey + allKeyPossiblility[k]
+
+    #on effectue l'inverse de PC2
     toTest = permutation(toTest,inv_PC_2,56)
+
     #ajout des bit de parité
     toTest += '00000000'
+    #on effectue l'inverse de PC1
     toTest = permutation(toTest,inv_PC_1,64)
+    #on met à jour les 8 bit de parité
     toTest = parityBit(toTest)
-    #Vérification de cette propostion
 
+    #Vérification de cette propostion de clé
+
+    #on applique PC1 sur notre clé potentiel
     toTest_P = permutation(toTest,PC_1,56)
     subkeyToTest = ""
-    msg =permutation(msg,initial_perm,64)
+    #on applique la Initial permutation sur le message
+    msg =permutation(msg,initial_permutation,64)
     L,R = slipt(msg)
     C = toTest_P[0:28]
     D = toTest_P[28:]
-    for tour in range(0,16):
 
+    #on refait tout le DES
+    for tour in range(0,16):
+        #shift des moitié de clé selon le tour
         for rotate in range(0,shift_table[tour]):
             C= C[1:]+C[0]
             D = D[1:] +D[0]
         subkeyToTest = C+D
+        #on applique PC2
         subkeyToTest = permutation(subkeyToTest,PC_2,48)
         tmp= R
+        #passage de la sous clé dans la fonction F avec R
         R= f_function(R,subkeyToTest)
         R = xor(R,L)
         L = tmp
+    #fin du DES on relie R16 avec L16
     verif = R +L
-    verif = permutation(verif,iptable,64)
+    # on effectue la permutation inverse
+    verif = permutation(verif,final_permutation,64)
+    #Vérification du chiffré obtenu avec le chiffré correct donné
     if xor(correctOutBin,verif) == '0000000000000000000000000000000000000000000000000000000000000000':
-        print(toTest)
-        print("succes")
+        print("La clé est : ")
+        print(hex(int(toTest,2)))
+        break
